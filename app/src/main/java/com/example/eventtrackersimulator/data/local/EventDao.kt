@@ -20,6 +20,15 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE status IN ('QUEUED', 'RETRYING') ORDER BY timestamp ASC")
     suspend fun getPendingEvents(): List<EventEntity>
 
+    /**
+     * If the worker was killed mid-attempt, an event can be left stuck at PROCESSING forever
+     * (it's invisible to [getPendingEvents], which only looks at QUEUED/RETRYING). Called at
+     * the start of every ingestion pass to put any such events back in the queue so they still
+     * get retried -- this is what keeps events from being lost if the app is closed mid-ingestion.
+     */
+    @Query("UPDATE events SET status = 'QUEUED' WHERE status = 'PROCESSING'")
+    suspend fun resetStuckProcessingEvents()
+
     @Query("UPDATE events SET status = 'PROCESSING' WHERE id = :id")
     suspend fun markProcessing(id: Long)
 

@@ -18,6 +18,8 @@ class EventRepository(
 
     suspend fun getPendingEvents(): List<EventEntity> = eventDao.getPendingEvents()
 
+    suspend fun resetStuckProcessingEvents() = eventDao.resetStuckProcessingEvents()
+
     suspend fun markProcessing(id: Long) = eventDao.markProcessing(id)
 
     suspend fun markProcessed(id: Long) = eventDao.markProcessed(id)

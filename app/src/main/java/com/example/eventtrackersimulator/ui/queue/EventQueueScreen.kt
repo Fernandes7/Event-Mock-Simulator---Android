@@ -15,7 +15,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -50,54 +52,71 @@ private val TABS = listOf("IN PROGRESS", "FAILED / RETRYING")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventQueueScreen(viewModel: EventQueueViewModel, modifier: Modifier = Modifier) {
+fun EventQueueScreen(
+    viewModel: EventQueueViewModel,
+    modifier: Modifier = Modifier,
+    onAddSampleEvent: () -> Unit = {},
+) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val inProgress by viewModel.inProgress.collectAsState()
     val failedRetrying by viewModel.failedRetrying.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-    Column(modifier.fillMaxSize()) {
-        AppHeader(
-            subtitle = "Event Queue",
-            trailingAction = {
-                HeaderIconButton(icon = "↻", contentDescription = "Refresh", onClick = viewModel::refresh)
-            },
-        )
+    Box(modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            AppHeader(
+                subtitle = "Event Queue",
+                trailingAction = {
+                    HeaderIconButton(icon = "↻", contentDescription = "Refresh", onClick = viewModel::refresh)
+                },
+            )
 
-        TabRow(selectedTabIndex = selectedTab, containerColor = Color.White, contentColor = MantineBlue) {
-            TABS.forEachIndexed { index, label ->
-                Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    text = {
-                        Text(
-                            text = label,
-                            fontSize = 13.sp,
-                            fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                        )
-                    },
-                )
+            TabRow(selectedTabIndex = selectedTab, containerColor = Color.White, contentColor = MantineBlue) {
+                TABS.forEachIndexed { index, label ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = {
+                            Text(
+                                text = label,
+                                fontSize = 13.sp,
+                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
+                            )
+                        },
+                    )
+                }
+            }
+
+            val events = if (selectedTab == 0) inProgress else failedRetrying
+
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = viewModel::refresh,
+                modifier = Modifier.weight(1f),
+            ) {
+                when {
+                    events == null -> LoadingState()
+                    events.isEmpty() -> EmptyQueueState()
+                    else -> LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(events, key = { it.id }) { event -> EventCard(event) }
+                    }
+                }
             }
         }
 
-        val events = if (selectedTab == 0) inProgress else failedRetrying
-
-        PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            onRefresh = viewModel::refresh,
-            modifier = Modifier.weight(1f),
+        FloatingActionButton(
+            onClick = onAddSampleEvent,
+            containerColor = MantineBlue,
+            contentColor = Color.White,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(20.dp),
         ) {
-            if (events.isEmpty()) {
-                EmptyQueueState()
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    items(events, key = { it.id }) { event -> EventCard(event) }
-                }
-            }
+            Text(text = "+", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -125,6 +144,13 @@ private fun EventCard(event: EventEntity, modifier: Modifier = Modifier) {
             Spacer(Modifier.width(8.dp))
             StatusPill(status = status, nextAttemptAt = event.nextAttemptAt)
         }
+    }
+}
+
+@Composable
+private fun LoadingState() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(color = MantineBlue)
     }
 }
 

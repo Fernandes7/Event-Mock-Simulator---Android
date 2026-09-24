@@ -5,6 +5,7 @@ import com.example.eventtrackersimulator.data.local.AppDatabase
 import com.example.eventtrackersimulator.data.prefs.AppPrefs
 import com.example.eventtrackersimulator.data.repository.EventRepository
 import com.example.eventtrackersimulator.domain.EventTracker
+import com.example.eventtrackersimulator.worker.IngestionWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,5 +26,6 @@ class EventTrackerApp : Application() {
         val database = AppDatabase.getInstance(this)
         repository = EventRepository(eventDao = database.eventDao(), appPrefs = AppPrefs(this))
         eventTracker = EventTracker(repository, applicationScope)
+        IngestionWorker.enqueue(this)
     }
 }

@@ -16,13 +16,13 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class EventQueueViewModel(repository: EventRepository) : ViewModel() {
 
-    val inProgress: StateFlow<List<EventEntity>> =
+    val inProgress: StateFlow<List<EventEntity>?> =
         repository.observeByStatuses(EventStatus.entries)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    val failedRetrying: StateFlow<List<EventEntity>> =
+    val failedRetrying: StateFlow<List<EventEntity>?> =
         repository.observeByStatuses(listOf(EventStatus.RETRYING))
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()

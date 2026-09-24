@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.eventtrackersimulator.EventTrackerApp
+import com.example.eventtrackersimulator.domain.EventType
 import com.example.eventtrackersimulator.ui.queue.EventQueueScreen
 import com.example.eventtrackersimulator.ui.queue.EventQueueViewModel
 import com.example.eventtrackersimulator.ui.statistics.StatisticsScreen
@@ -66,7 +67,11 @@ fun AppRoot() {
                 val viewModel: EventQueueViewModel = viewModel(
                     factory = viewModelFactory { initializer { EventQueueViewModel(app.repository) } },
                 )
-                EventQueueScreen(viewModel, modifier = Modifier.padding(innerPadding))
+                EventQueueScreen(
+                    viewModel,
+                    modifier = Modifier.padding(innerPadding),
+                    onAddSampleEvent = { app.eventTracker.track(EventType.entries.random()) },
+                )
             }
 
             AppTab.STATISTICS -> {
