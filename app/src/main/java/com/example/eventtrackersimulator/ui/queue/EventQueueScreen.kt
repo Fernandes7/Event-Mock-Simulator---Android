@@ -192,7 +192,7 @@ private fun EventCard(event: EventEntity, modifier: Modifier = Modifier) {
                 Text(text = DateTimeUtils.formatTime(event.timestamp), color = MantineGray6, fontSize = 12.sp)
             }
             Spacer(Modifier.width(8.dp))
-            StatusPill(status = status)
+            StatusPill(status = status, nextAttemptAt = event.nextAttemptAt)
         }
     }
 }

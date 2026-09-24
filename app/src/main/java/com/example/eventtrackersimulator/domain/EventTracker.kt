@@ -6,6 +6,8 @@ import com.example.eventtrackersimulator.data.local.EventEntity
 import com.example.eventtrackersimulator.data.repository.EventRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 
 class EventTracker(
@@ -14,6 +16,8 @@ class EventTracker(
 ) {
 
     val sessionId: String = UUID.randomUUID().toString()
+    private val dedupMutex = Mutex()
+    private var visitTrackedThisSession = false
 
     fun track(eventType: EventType, payload: Map<String, String> = emptyMap()) {
         scope.launch { trackInternal(eventType, payload) }
@@ -27,7 +31,16 @@ class EventTracker(
         }
     }
 
-    private suspend fun trackInternal(eventType: EventType, payload: Map<String, String>) {
+    private suspend fun trackInternal(eventType: EventType, payload: Map<String, String>) = dedupMutex.withLock {
+        when (eventType) {
+            // INSTALL: process only once ever.
+            EventType.INSTALL -> if (repository.appPrefs.isInstallTracked()) return@withLock
+            // VISIT: process only once per session.
+            EventType.VISIT -> if (visitTrackedThisSession) return@withLock
+            // PURCHASE / ADD_TO_CART: no dedup limit.
+            EventType.PURCHASE, EventType.ADD_TO_CART -> Unit
+        }
+
         val entity = EventEntity(
             eventType = eventType.name,
             payload = payload.toJsonString(),
@@ -36,5 +49,12 @@ class EventTracker(
             status = EventStatus.QUEUED.name,
         )
         repository.enqueueEvent(entity)
+
+        // Only mark as tracked once the event is actually queued.
+        when (eventType) {
+            EventType.INSTALL -> repository.appPrefs.setInstallTracked(true)
+            EventType.VISIT -> visitTrackedThisSession = true
+            EventType.PURCHASE, EventType.ADD_TO_CART -> Unit
+        }
     }
 }

@@ -25,8 +25,6 @@ interface EventDao {
             "WHERE id = :id",
     )
     suspend fun markRetrying(id: Long, nextAttemptAt: Long)
-    @Query("SELECT COUNT(*) FROM events WHERE eventType = :eventType AND sessionId = :sessionId")
-    suspend fun countByTypeAndSession(eventType: String, sessionId: String): Int
     @Query("SELECT COUNT(*) FROM events WHERE status = 'PROCESSED'")
     fun observeTotalProcessed(): Flow<Int>
     @Query("SELECT COUNT(DISTINCT sessionId) FROM events WHERE eventType = 'VISIT' AND status = 'PROCESSED'")
