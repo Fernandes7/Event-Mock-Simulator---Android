@@ -8,52 +8,27 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface EventDao {
 
-    /** Persists a newly-tracked event with status = QUEUED. Returns the generated row id. */
     @Insert
     suspend fun insert(event: EventEntity): Long
-
-    /** Live feed of events whose status is one of [statuses], oldest first (as in the mockup). */
     @Query("SELECT * FROM events WHERE status IN (:statuses) ORDER BY timestamp ASC")
     fun observeByStatuses(statuses: List<String>): Flow<List<EventEntity>>
-
-    /** One-shot read of everything still waiting to be ingested, oldest first (FIFO). */
     @Query("SELECT * FROM events WHERE status IN ('QUEUED', 'RETRYING') ORDER BY timestamp ASC")
     suspend fun getPendingEvents(): List<EventEntity>
-
-    /**
-     * If the worker was killed mid-attempt, an event can be left stuck at PROCESSING forever
-     * (it's invisible to [getPendingEvents], which only looks at QUEUED/RETRYING). Called at
-     * the start of every ingestion pass to put any such events back in the queue so they still
-     * get retried -- this is what keeps events from being lost if the app is closed mid-ingestion.
-     */
     @Query("UPDATE events SET status = 'QUEUED' WHERE status = 'PROCESSING'")
     suspend fun resetStuckProcessingEvents()
-
     @Query("UPDATE events SET status = 'PROCESSING' WHERE id = :id")
     suspend fun markProcessing(id: Long)
-
     @Query("UPDATE events SET status = 'PROCESSED', nextAttemptAt = NULL WHERE id = :id")
     suspend fun markProcessed(id: Long)
-
     @Query(
         "UPDATE events SET status = 'RETRYING', retryCount = retryCount + 1, nextAttemptAt = :nextAttemptAt " +
             "WHERE id = :id",
     )
     suspend fun markRetrying(id: Long, nextAttemptAt: Long)
-
-    /** How many events of [eventType] already exist for [sessionId], regardless of status. */
-    @Query("SELECT COUNT(*) FROM events WHERE eventType = :eventType AND sessionId = :sessionId")
-    suspend fun countByTypeAndSession(eventType: String, sessionId: String): Int
-
-    /** Total events that have completed ingestion. */
     @Query("SELECT COUNT(*) FROM events WHERE status = 'PROCESSED'")
     fun observeTotalProcessed(): Flow<Int>
-
-    /** Unique sessions that produced at least one processed VISIT event. */
     @Query("SELECT COUNT(DISTINCT sessionId) FROM events WHERE eventType = 'VISIT' AND status = 'PROCESSED'")
     fun observeUniqueVisitSessions(): Flow<Int>
-
-    /** Processed-event counts grouped by type, used for both the metric cards and the breakdown table. */
     @Query("SELECT eventType, COUNT(*) as count FROM events WHERE status = 'PROCESSED' GROUP BY eventType")
     fun observeBreakdown(): Flow<List<EventTypeCount>>
 }

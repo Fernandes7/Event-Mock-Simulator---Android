@@ -13,4 +13,6 @@ val MantineOrange = Color(0xFFFD7E14) // PURCHASE / retrying
 val MantineGray9 = Color(0xFF1A1B1E) // primary text
 val MantineGray6 = Color(0xFF868E96) // secondary text
 val MantineGray2 = Color(0xFFE9ECEF) // borders/dividers
+val MantineGray0 = Color(0xFFF8F9FA) // screen background
+val MantineRed = Color(0xFFFA5252) // retrying/failed
 val MantineRadiusMd = 12.dp // Mantine default card radius

@@ -16,8 +16,13 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class EventQueueViewModel(repository: EventRepository) : ViewModel() {
 
-    val inProgress: StateFlow<List<EventEntity>?> =
+    val all: StateFlow<List<EventEntity>?> =
         repository.observeByStatuses(EventStatus.entries)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    // Only unresolved work -- PROCESSED events drop off this one once they're done.
+    val inProgress: StateFlow<List<EventEntity>?> =
+        repository.observeByStatuses(listOf(EventStatus.QUEUED, EventStatus.PROCESSING))
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val failedRetrying: StateFlow<List<EventEntity>?> =

@@ -1,6 +1,7 @@
 package com.example.eventtrackersimulator.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.eventtrackersimulator.ui.theme.MantineBlue
-import com.example.eventtrackersimulator.ui.theme.MantineBlueLight
 import com.example.eventtrackersimulator.ui.theme.MantineGray2
 import com.example.eventtrackersimulator.ui.theme.MantineGray6
 import com.example.eventtrackersimulator.ui.theme.MantineGray9
@@ -65,7 +64,6 @@ fun AppHeader(
             }
             trailingAction?.invoke()
         }
-        HorizontalDivider(color = MantineGray2)
     }
 }
 
@@ -77,9 +75,10 @@ fun HeaderIconButton(icon: String, contentDescription: String, onClick: () -> Un
         modifier = Modifier
             .size(40.dp)
             .clip(CircleShape)
-            .background(MantineBlueLight)
+            .background(Color.White)
+            .border(1.dp, MantineGray2, CircleShape)
             .semantics { this.contentDescription = contentDescription },
     ) {
-        Text(text = icon, color = MantineBlue, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(text = icon, color = MantineGray9, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }
