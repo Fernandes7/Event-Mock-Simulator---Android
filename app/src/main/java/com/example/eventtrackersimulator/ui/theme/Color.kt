@@ -1,11 +1,16 @@
 package com.example.eventtrackersimulator.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+/* Mantine (mantine.dev) blue palette -- the design tokens the two mockup screens are built from. */
+val MantineBlue = Color(0xFF228BE6) // primary
+val MantineBlueDark = Color(0xFF1864AB)
+val MantineBlueLight = Color(0xFFE7F5FF) // chip/badge backgrounds
+val MantineGreen = Color(0xFF40C057) // INSTALL / success
+val MantineViolet = Color(0xFF7950F2) // ADD_TO_CART
+val MantineOrange = Color(0xFFFD7E14) // PURCHASE / retrying
+val MantineGray9 = Color(0xFF1A1B1E) // primary text
+val MantineGray6 = Color(0xFF868E96) // secondary text
+val MantineGray2 = Color(0xFFE9ECEF) // borders/dividers
+val MantineRadiusMd = 12.dp // Mantine default card radius
