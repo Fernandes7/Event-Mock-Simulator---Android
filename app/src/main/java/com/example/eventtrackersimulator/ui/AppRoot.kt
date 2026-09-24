@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import android.widget.Toast
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.collectAsState
@@ -52,8 +54,15 @@ private enum class AppTab(val label: String, val glyph: String) {
 
 @Composable
 fun AppRoot() {
-    val app = LocalContext.current.applicationContext as EventTrackerApp
+    val context = LocalContext.current
+    val app = context.applicationContext as EventTrackerApp
     var selectedTab by rememberSaveable { mutableStateOf(AppTab.QUEUE) }
+
+    LaunchedEffect(app.eventTracker) {
+        app.eventTracker.dedupDropped.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     val queueViewModel: EventQueueViewModel = viewModel(
         factory = viewModelFactory { initializer { EventQueueViewModel(app.repository) } },
