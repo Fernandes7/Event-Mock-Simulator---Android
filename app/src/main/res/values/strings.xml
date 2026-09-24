@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">EventTrackerSimulator</string>
+    <string name="app_name">Tracker</string>
     <string name="total_events_processed">Total Events Processed</string>
     <string name="total_visits_unique_session">Total Visits (Unique Session)</string>
 </resources>
