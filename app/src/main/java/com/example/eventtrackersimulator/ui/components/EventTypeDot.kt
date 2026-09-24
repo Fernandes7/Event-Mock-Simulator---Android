@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -31,4 +33,18 @@ fun EventTypeDot(eventType: EventType, modifier: Modifier = Modifier, size: Dp =
             .clip(CircleShape)
             .background(eventType.dotColor()),
     )
+}
+
+@Composable
+fun EventTypeIconChip(eventType: EventType, modifier: Modifier = Modifier, size: Dp = 40.dp) {
+    val color = eventType.dotColor()
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(RoundedCornerShape(size / 4))
+            .background(color.copy(alpha = 0.15f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        EventTypeDot(eventType, size = size / 4)
+    }
 }

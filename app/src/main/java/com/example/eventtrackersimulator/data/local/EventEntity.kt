@@ -26,10 +26,5 @@ data class EventEntity(
     /** How many times ingestion has failed and been retried for this event. */
     val retryCount: Int = 0,
 
-    /**
-     * Epoch millis of the next scheduled ingestion attempt while status == RETRYING.
-     * Null unless the event is currently retrying. Populated by the ingestion loop
-     * (see IngestionWorker TODO) purely so the UI can render a "Retrying in Ns" countdown.
-     */
     val nextAttemptAt: Long? = null,
 )

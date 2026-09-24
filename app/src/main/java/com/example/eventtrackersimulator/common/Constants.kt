@@ -9,7 +9,5 @@ object Constants {
     const val INGESTION_MIN_DELAY_MS = 1_000L
     const val INGESTION_MAX_DELAY_MS = 5_000L
     const val INGESTION_SUCCESS_RATE = 0.8f
-    // Gap between one ingestion pass finishing and the next one starting, so the worker
-    // polls Room continuously instead of running in a tight loop.
     const val INGESTION_POLL_INTERVAL_MS = 1_000L
 }
